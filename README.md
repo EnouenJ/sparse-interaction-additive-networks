@@ -133,7 +133,7 @@ my_SIAN = SIAN(best_interactions)
 @inproceedings{enouen2022sian,
     title={Sparse Interaction Additive Networks via Feature Interaction Detection and Sparse Selection},
     author={James Enouen and Yan Liu},
-    booktitle = {Advances in Neural Information Processing Systems},
+    booktitle={Advances in Neural Information Processing Systems},
     year={2022}
 }
 ```
