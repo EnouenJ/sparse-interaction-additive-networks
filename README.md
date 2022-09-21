@@ -12,7 +12,6 @@ via Feature Interaction Detection and Sparse Selection" available at:
 
 SIAN is a neural additive model (NAM) which extends previous work like <a href="https://arxiv.org/abs/2106.01613" target="_blank">NODE-GAM</a> from one-dimensional and two-dimensional functions to higher-order functions (primarily focusing on three to five dimensional functions).
 We begin by (a) training a typical multilayer perceptron (MLP) on the dataset; (b) then using a post-hoc interpretability metric (<a href="https://arxiv.org/abs/2006.10965">Archipelago</a>) alongside our FIS algorithm to extract the most important feature interactions or feature subsets from the partially trained MLP; (c) finally, we use the important feature interactions as a blueprint for the architecture of the neural additive model and train the constructed SIAN model.
-
 <br>
 
 ## Performance
@@ -23,7 +22,7 @@ of simple models and the good training fit of deep neural networks.
 This balance lets it achieve the highest average rank over all seven datasets.
 Our results also demonstrate that SIAN can outperform MLPs on all but the two largest datasets, Song Year and Higgs Boson.
 Moreover, SIAN outperforms all previously existing additive models (degree one or two) on all of the high-dimensional datasets.
-Bold indicates the best-performing method, underline indicates the best-performing SIAN.
+Bold indicates the best-performing method, itallics indicates the best-performing SIAN.
 
 Since our method slowly transitions from a simple linear model to a full complexity MLP, SIAN is able to give fine-grained
 insights into the interpretability-accuracy tradeoff.
@@ -35,7 +34,7 @@ provided in the paper.
 
 #### Table 1: Performance Across All Datasets
 |     Model     | Energy | Bike | Housing  |  Wine | Song Year |  | Higgs Boson | MIMIC-III |
-|-|-|-| - |-|-|-| -|-|
+| :-: |-|-| - |-|-|-| -|-|
 |LASSO             | 0.740±0.002  | 1.053±0.001 | 0.478±0.000 | 0.575±0.002  |     1.000±0.008    |  |  0.635±0.000  | 0.568±0.001 | 
 |GA2M EBM          | 1.053±0.138  | 0.124±0.004 | 0.265±0.002 | 0.498±0.004  |  0.894±0.001        |  | 0.698±0.001  | 0.840±0.001 | 
 |NODE-GA2M         |  1.064±0.056 | **0.111±0.006** | **0.222±0.005** | 0.521±0.009  | 0.806±0.001 |  | 0.811±0.000| 0.826±0.001 | 
@@ -50,15 +49,27 @@ provided in the paper.
 |XGB            | 1.188±0.119    | 0.157±0.003 | 0.229±0.002 |  0.465±0.014 |  0.881±0.002       |  |0.740±0.000 |    0.843±0.001 | 
 |DNN           | 0.945±0.054  | 0.374±0.017 | 0.283±0.005 |   0.495±0.007 |   **0.791±0.002**    |  |  **0.823±0.000**   | 0.844±0.001 | 
 
+| Model       | LASSO       | GA2M EBM    | NODE-GA2M       |   | SIAN-1            | SIAN-2          | SIAN-3          | SIAN-5          |   | RF              | SVM         | XGB         | DNN             |
+|-------------|-------------|-------------|-----------------|---|-------------------|-----------------|-----------------|-----------------|---|-----------------|-------------|-------------|-----------------|
+| Energy      | 0.740±0.002 | 1.053±0.138 | 1.064±0.056     |   | **_0.718±0.007_** | 0.763±0.009     | 0.808±0.026     | 0.801±0.031     |   | 1.114±0.095     | 0.740±0.008 | 1.188±0.119 | 0.945±0.054     |
+| Bike        | 1.053±0.001 | 0.124±0.004 | **0.111±0.006** |   | 0.387±0.035       | _0.127±0.008_   | _0.125±0.013_   | 0.149±0.011     |   | 0.206±0.009     | 0.168±0.001 | 0.157±0.003 | 0.374±0.017     |
+| Housing     | 0.478±0.000 | 0.265±0.002 | **0.222±0.005** |   | 0.378±0.007       | 0.302±0.002     | 0.278±0.001     | _0.272±0.003_   |   | 0.271±0.001     | 0.262±0.001 | 0.229±0.002 | 0.283±0.005     |
+| Wine        | 0.575±0.002 | 0.498±0.004 | 0.521±0.009     |   | 0.551±0.004       | 0.497±0.003     | 0.497±0.003     | _0.484±0.006_   |   | **0.439±0.005** | 0.457±0.008 | 0.465±0.014 | 0.495±0.007     |
+| Song Year   | 1.000±0.008 | 0.894±0.001 | 0.806±0.001     |   | 0.860±0.001       | 0.842±0.002     | 0.831±0.001     | _0.821±0.001_   |   | 0.994±0.005     | 0.940±0.012 | 0.881±0.002 | **0.791±0.002** |
+|             |             |             |                 |   |                   |                 |                 |                 |   |                 |             |             |                 |
+| Higgs Boson | 0.635±0.000 | 0.698±0.001 | 0.811±0.000     |   | 0.771±0.001       | 0.795±0.001     | 0.798±0.001     | _0.802±0.001_   |   | 0.654±0.002     | 0.698±0.001 | 0.740±0.000 | **0.823±0.000** |
+| MIMIC-III   | 0.568±0.001 | 0.840±0.001 | 0.826±0.001     |   | 0.848±0.001       | **0.855±0.001** | **0.856±0.001** | **0.856±0.001** |   | 0.821±0.001     | 0.831±0.001 | 0.843±0.001 | 0.844±0.001     |
+|             |             |             |                 |   |                   |                 |                 |                 |   |                 |             |             |                 |
+
+
 #### Table 2: Dataset Details
-|Dataset | number of samples  | number of dimensions | class imbalance |
-|-|-|-|-|
+|Dataset | Number of Samples  | Number of Features | Class Imbalance |
+| :- | -: | -: | -: |
 |Energy     | 19,735  | 30 | -- |
 |Bike       | 17,379  | 13 | -- |
 |Housing    | 20,640  | 8 | -- |
 |Wine       |  6,497  | 12 | -- |
 |Song Year |  515,345  | 90 | -- |
-| | | | |
 |Higgs Boson | 11,000,000  | 28 | 53.0% |
 |MIMIC-III  |    32,254    | 30 | 9.2%  |
 
@@ -135,7 +146,7 @@ my_SIAN = SIAN(best_interactions)
 ```
 @inproceedings{enouen2022sian,
     title={Sparse Interaction Additive Networks via Feature Interaction Detection and Sparse Selection},
-	author={James Enouen and Yan Liu},
+    author={James Enouen and Yan Liu},
     booktitle = {Advances in Neural Information Processing Systems},
     year={2022}
 }
