@@ -4,10 +4,6 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-import torch.optim as optim
-from torch import Tensor
-from torch.utils.data import TensorDataset, DataLoader
-
 
 class SmallModel(nn.Module):
     def __init__(self,sizes):
@@ -188,7 +184,7 @@ class Blocksparse_Deep_Relu_GAM(nn.Module):
             return hook
         
         for k in range(self.length):
-            #it is quite possible there are better scaling laws than this, I did not do any serious calculations
+            #NOTE: it is quite possible there are better scaling laws than this, I did not do any serious calculations
             self.hiddens[k].weight = torch.nn.Parameter( self.hiddens[k].weight.data * self.grad_masks[k] ) 
             if k!=0:
                 self.hiddens[k].weight = torch.nn.Parameter( self.hiddens[k].weight.data * self.grad_masks[k] *np.sqrt(len(self.all_indices)) )
@@ -351,10 +347,18 @@ class Blocksparse_Deep_Relu_GAM(nn.Module):
             self.grad_masks = None
             print('compressed :)')
 
-    def addIndices(self, indices):
-        self.all_indices.append(indices)
-        sizes = [len(indices),16,12,8,1]
+    # def addIndices(self, indices):
+    #     self.all_indices.append(indices)
+    #     sizes = [len(indices),16,12,8,1]
+    #     self.models.append(  SmallModel(sizes)  )
+    def addIndices(self, index):
+        self.all_indices.append(index)
+        sizes = [len(index),16,12,8,1]
         self.models.append(  SmallModel(sizes)  )
+
+        self.all_sizes.append( sizes ) #update sizes also necessary
+        for k in range(1,len(self.sizes)):
+            self.sizes[k] += sizes[k]
     def returnLinearNorms(self):
         return torch.zeros(1)
     def returnQuadraticNorms(self):
@@ -377,14 +381,27 @@ class Blocksparse_Deep_Relu_GAM(nn.Module):
 
 
 class SIAN(nn.Module):
-    def __init__(self,sizes,indices,  dnn_on_or_off=False,small_sizes=[0,16,12,8,1]):
+    # def __init__(self,sizes,indices,  dnn_on_or_off=False,small_sizes=[0,16,12,8,1]):
+    def __init__(self,sizes,indices,  dnn_on_or_off=False,small_sizes=[0,16,12,8,1],feature_groups_dict=None):
         super(SIAN,self).__init__()
         self.dnn_on = dnn_on_or_off
         if not self.dnn_on:
             sizes = [sizes[0],sizes[len(sizes)-1]]
         self.sizes = sizes
         self.dnn = MuP_Relu_DNN(sizes)
-        self.gam = Blocksparse_Deep_Relu_GAM(sizes[0],indices,small_sizes=small_sizes)
+        
+        self.feature_groups_dict = feature_groups_dict #04/13/2025
+        self.indices = indices
+        self.ungrouped_indices = indices
+        if self.feature_groups_dict is not None:
+            self.ungrouped_indices = []
+            for ind in indices:
+                new_ind = []
+                for i in ind:
+                    new_ind.extend(  self.feature_groups_dict[i]  )
+                self.ungrouped_indices.append( tuple(new_ind) )
+        # self.gam = Blocksparse_Deep_Relu_GAM(sizes[0],indices,small_sizes=small_sizes)
+        self.gam = Blocksparse_Deep_Relu_GAM(sizes[0],self.ungrouped_indices,small_sizes=small_sizes) #04/13/2025
     def forward(self, x):
         if self.dnn_on:
             dnn_h = self.dnn(x)
@@ -415,6 +432,5 @@ class SIAN(nn.Module):
 
 
 
-        
 
 

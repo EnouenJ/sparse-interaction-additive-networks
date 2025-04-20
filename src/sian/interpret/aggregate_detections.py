@@ -1,7 +1,9 @@
 import numpy as np
 
-from basic_wrappers import BasicXformer,CustomGroupedXformer
-from explainer import Archipelago
+# from basic_wrappers import BasicXformer,CustomGroupedXformer,MaskedXformer,MaskedXformer_v2
+# from explainer import Archipelago
+from sian.interpret.basic_wrappers import BasicXformer,CustomGroupedXformer,MaskedXformer,MaskedXformer_v2
+# from sian.interpret.explainer import Archipelago #NOTE: disabled on 04/12/2025 @ 11:00pm
 
 
 
@@ -132,6 +134,9 @@ def aggregateContrastiveDetections_only1D(model_wrap,valX,K,verbose=True):
             target_person = valX[k1]
             baseline_person = valX[k2]
             xf_k = BasicXformer(target_person,baseline_person); 
+            # print('target_person',target_person)
+            # print('baseline_person',baseline_person)
+            
 
             archipel_k = Archipelago(model_wrap, data_xformer=xf_k,output_indices=0,batch_size=20)
             detects = archipel_k.archdetect_1D()
@@ -157,6 +162,8 @@ def aggregateContrastiveDetections_only1D(model_wrap,valX,K,verbose=True):
                         aggregate2[key] = detects['main_effects'][key]
                         aggregate3[key] = detects['derivatives'][key]
                         aggregate4[key] = 1
+                    # if key==(0,):
+                    #     print(aggregate[key]) #01/26/2025 - debugging
                 else:
                     if k1==K-2 and k2==K-1:
                         if key not in aggregate: 
@@ -164,6 +171,8 @@ def aggregateContrastiveDetections_only1D(model_wrap,valX,K,verbose=True):
                             aggregate2[key] = 0.
                             aggregate3[key] = 0.
                             aggregate4[key] = -1
+                    # if key==(0,):
+                    #     print("000") #01/26/2025 - debugging
             
     
     for key in aggregate:
@@ -278,6 +287,265 @@ def aggregateContrastiveDetections_anyD(model_wrap,valX,K,interaction_list,verbo
         #aggregate2[key] /= aggregate4[key]
         aggregate3[key] /= aggregate4[key]
     return aggregate,None,aggregate3,aggregate4
+
+
+
+
+
+#08/28/2024
+def aggregateConditionalDetections_only1D(model_wrap,masker,valX,K,verbose=True):
+    aggregate = {}
+    aggregate2 = {}
+    aggregate3 = {}
+    aggregate4 = {}
+    
+    for k1 in range(K):
+        #for k2 in range(k1+1,K):
+            # if verbose:
+            #     if k1%10==0 and k2==k1+1:
+            #         print('\t',k1)
+            target_person = valX[k1]
+            #baseline_person = valX[k2]
+            #xf_k = BasicXformer(target_person,baseline_person); 
+            xf_k = MaskedXformer(target_person,masker); 
+
+            archipel_k = Archipelago(model_wrap, data_xformer=xf_k,output_indices=0,batch_size=20)
+            detects = archipel_k.archdetect_1D()
+            valid_inds = xf_k.get_contrastive_validities()
+
+            for interaction in detects['interactions']:
+                key = interaction[0]
+                value = interaction[1]
+                
+                valid=True
+                for thing in key:
+                    if not valid_inds[thing]:
+                        valid = False
+                
+                if valid:
+                    if key in aggregate:
+                        aggregate[key] += value
+                        aggregate2[key] += detects['main_effects'][key]
+                        aggregate3[key] += detects['derivatives'][key]
+                        aggregate4[key] += 1
+                    else:
+                        aggregate[key] = value
+                        aggregate2[key] = detects['main_effects'][key]
+                        aggregate3[key] = detects['derivatives'][key]
+                        aggregate4[key] = 1
+                else:
+                    if k1==K-2 and k2==K-1:
+                        if key not in aggregate: 
+                            aggregate[key] = 0.
+                            aggregate2[key] = 0.
+                            aggregate3[key] = 0.
+                            aggregate4[key] = -1
+            
+    
+    for key in aggregate:
+        aggregate[key]  /= aggregate4[key]
+        aggregate2[key] /= aggregate4[key]
+        aggregate3[key] /= aggregate4[key]
+    return aggregate,aggregate2,aggregate3,aggregate4
+
+
+#08/28/2024
+def aggregateConditionalDetections_only2D(model_wrap,masker,valX,K,verbose=True):
+    aggregate = {}
+    aggregate2 = {}
+    aggregate3 = {}
+    aggregate4 = {}
+    
+    for k1 in range(K):
+        # for k2 in range(k1+1,K):
+        #     if verbose:
+        #         if k1%10==0 and k2==k1+1:
+        #             print('\t',k1)
+            target_person = valX[k1]
+            # baseline_person = valX[k2]
+            # xf_k = BasicXformer(target_person,baseline_person); 
+            xf_k = MaskedXformer(target_person,masker); 
+
+            archipel_k = Archipelago(model_wrap, data_xformer=xf_k,output_indices=0,batch_size=20)
+            detects = archipel_k.archdetect_2D()
+            valid_inds = xf_k.get_contrastive_validities()
+
+            for interaction in detects['interactions']:
+                key = interaction[0]
+                value = interaction[1]
+                
+                valid=True
+                for thing in key:
+                    if not valid_inds[thing]:
+                        valid = False
+                
+                if valid:
+                    if key in aggregate:
+                        aggregate[key] += value
+                        aggregate2[key] += detects['pairwise_effects'][key]
+                        aggregate3[key] += detects['derivatives'][key]
+                        aggregate4[key] += 1
+                    else:
+                        aggregate[key] = value
+                        aggregate2[key] = detects['pairwise_effects'][key]
+                        aggregate3[key] = detects['derivatives'][key]
+                        aggregate4[key] = 1
+                else:
+                    if k1==K-2 and k2==K-1:
+                        if key not in aggregate: 
+                            aggregate[key] = 0.
+                            aggregate2[key] = 0.
+                            aggregate3[key] = 0.
+                            aggregate4[key] = -1
+
+    for key in aggregate:
+        aggregate[key]  /= aggregate4[key]
+        aggregate2[key] /= aggregate4[key]
+        aggregate3[key] /= aggregate4[key]
+    return aggregate,aggregate2,aggregate3,aggregate4
+
+
+
+
+
+
+
+#08/29/2024
+def aggregateConditionalDetections_only1D_V2(model_wrap,valX,K,verbose=True):
+    aggregate = {}
+    aggregate2 = {}
+    aggregate3 = {}
+    aggregate4 = {}
+    
+    for k1 in range(K):
+        #for k2 in range(k1+1,K):
+            # if verbose:
+            #     if k1%10==0 and k2==k1+1:
+            #         print('\t',k1)
+            target_person = valX[k1]
+            #baseline_person = valX[k2]
+            #xf_k = BasicXformer(target_person,baseline_person); 
+            #xf_k = MaskedXformer(target_person,masker); 
+            xf_k = MaskedXformer_v2(target_person); 
+
+            archipel_k = Archipelago(model_wrap, data_xformer=xf_k,output_indices=0,batch_size=20)
+            detects = archipel_k.archdetect_1D()
+            valid_inds = xf_k.get_contrastive_validities()
+
+            for interaction in detects['interactions']:
+                key = interaction[0]
+                value = interaction[1]
+                
+                valid=True
+                for thing in key:
+                    if not valid_inds[thing]:
+                        valid = False
+                
+                if valid:
+                    if key in aggregate:
+                        aggregate[key] += value
+                        aggregate2[key] += detects['main_effects'][key]
+                        aggregate3[key] += detects['derivatives'][key]
+                        aggregate4[key] += 1
+                    else:
+                        aggregate[key] = value
+                        aggregate2[key] = detects['main_effects'][key]
+                        aggregate3[key] = detects['derivatives'][key]
+                        aggregate4[key] = 1
+                else:
+                    if k1==K-2 and k2==K-1:
+                        if key not in aggregate: 
+                            aggregate[key] = 0.
+                            aggregate2[key] = 0.
+                            aggregate3[key] = 0.
+                            aggregate4[key] = -1
+            
+    
+    for key in aggregate:
+        aggregate[key]  /= aggregate4[key]
+        aggregate2[key] /= aggregate4[key]
+        aggregate3[key] /= aggregate4[key]
+    return aggregate,aggregate2,aggregate3,aggregate4
+
+
+#08/29/2024
+def aggregateConditionalDetections_only2D_V2(model_wrap,valX,K,verbose=True):
+    aggregate = {}
+    aggregate2 = {}
+    aggregate3 = {}
+    aggregate4 = {}
+    
+    for k1 in range(K):
+        # for k2 in range(k1+1,K):
+        #     if verbose:
+        #         if k1%10==0 and k2==k1+1:
+        #             print('\t',k1)
+            target_person = valX[k1]
+            # baseline_person = valX[k2]
+            # xf_k = BasicXformer(target_person,baseline_person); 
+            #xf_k = MaskedXformer(target_person,masker); 
+            xf_k = MaskedXformer_v2(target_person); 
+
+
+            archipel_k = Archipelago(model_wrap, data_xformer=xf_k,output_indices=0,batch_size=20)
+            detects = archipel_k.archdetect_2D()
+            valid_inds = xf_k.get_contrastive_validities()
+
+            for interaction in detects['interactions']:
+                key = interaction[0]
+                value = interaction[1]
+                
+                valid=True
+                for thing in key:
+                    if not valid_inds[thing]:
+                        valid = False
+                
+                if valid:
+                    if key in aggregate:
+                        aggregate[key] += value
+                        aggregate2[key] += detects['pairwise_effects'][key]
+                        aggregate3[key] += detects['derivatives'][key]
+                        aggregate4[key] += 1
+                    else:
+                        aggregate[key] = value
+                        aggregate2[key] = detects['pairwise_effects'][key]
+                        aggregate3[key] = detects['derivatives'][key]
+                        aggregate4[key] = 1
+                else:
+                    if k1==K-2 and k2==K-1:
+                        if key not in aggregate: 
+                            aggregate[key] = 0.
+                            aggregate2[key] = 0.
+                            aggregate3[key] = 0.
+                            aggregate4[key] = -1
+
+    for key in aggregate:
+        aggregate[key]  /= aggregate4[key]
+        aggregate2[key] /= aggregate4[key]
+        aggregate3[key] /= aggregate4[key]
+    return aggregate,aggregate2,aggregate3,aggregate4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

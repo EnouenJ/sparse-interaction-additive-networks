@@ -17,7 +17,7 @@ class ModelWrapperTorch:
         batch_predictions2 = (batch_predictions[:,0]).unsqueeze(1).numpy() #pre-merged logits
         return batch_predictions2
         
-class MixedModelWrapperTorch:
+class MixedModelWrapperTorch: 
     def __init__(self, model, device):
         self.model = model.to(device)
         self.device = device
@@ -112,7 +112,6 @@ class SKlearnEnsembleWrapperLogit:
 
 
 
-import numpy as np
 
 def get_efficient_mask_indices(inst, baseline, target):
     invert = np.sum(1*inst) >= len(inst)//2
@@ -209,3 +208,86 @@ def CustomGroupedXformer(num_grouped_features,num_full_features,feature_grouping
     return CustomizedGroupedXformer
 
     
+
+class MaskedXformer:
+    def __init__(self, target_ppl, masker):
+        self.target = target_ppl
+        self.masker = masker
+        self.num_features = len(self.target)
+
+    def simple_xform(self, cond_mask):
+        return self.masker( (self.target,cond_mask) )
+        
+    # def efficient_xform(self, inst):
+    #     mask_indices, base, change = get_efficient_mask_indices(inst, self.baseline, self.target)
+    #     for i in mask_indices:
+    #         base[i] = change[i]
+    #     return base
+
+    def get_contrastive_validities(self):
+        validities = {}
+        for i in range(self.num_features):
+            # if self.target[i]==self.baseline[i]:
+            if False: #should always be valid with this style of masking??
+                validities[i] = False
+            else:
+                validities[i] = True
+        return validities
+
+    def __call__(self, cond_mask):
+        instance = self.simple_xform(cond_mask)
+        return instance 
+
+#for usage when the pytorch model already accepts masks as a pair
+class MaskedXformer_v2:
+    # def __init__(self, target_ppl, masker):
+    def __init__(self, target_ppl):
+        self.target = target_ppl
+        #self.masker = masker
+        self.num_features = len(self.target)
+
+    def simple_xform(self, cond_mask):
+        ####return self.masker( (self.target,cond_mask) )
+        return (self.target,cond_mask)
+        
+    # def efficient_xform(self, inst):
+    #     mask_indices, base, change = get_efficient_mask_indices(inst, self.baseline, self.target)
+    #     for i in mask_indices:
+    #         base[i] = change[i]
+    #     return base
+
+    def get_contrastive_validities(self):
+        validities = {}
+        for i in range(self.num_features):
+            # if self.target[i]==self.baseline[i]:
+            if False: #should always be valid with this style of masking??
+                validities[i] = False
+            else:
+                validities[i] = True
+        return validities
+
+    def __call__(self, cond_mask):
+        instance = self.simple_xform(cond_mask)
+        return instance 
+
+
+class Masked_MixedModelWrapperTorch:
+    def __init__(self, model, device):
+        self.model = model.to(device)
+        self.device = device
+        
+    def get_predictions(self, batch_ppl):
+        #print('batch_ppl',batch_ppl)
+        batch_inp = torch.FloatTensor(batch_ppl[0]).to(self.device)
+        batch_msk = torch.FloatTensor(batch_ppl[1]).to(self.device)
+        #print('batch_inp',batch_inp.shape)
+        #print('batch_msk',batch_msk.shape)
+        batch_conf = self.model( (batch_inp,batch_msk) )
+        return batch_conf
+
+    def __call__(self, batch_ppl):
+        batch_predictions = self.get_predictions(batch_ppl)
+        batch_predictions = batch_predictions[0] + batch_predictions[1]
+        batch_predictions = batch_predictions.data.cpu()
+        batch_predictions2 = (batch_predictions[:,0]).unsqueeze(1).numpy() #pre-merged logits
+        return batch_predictions2

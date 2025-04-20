@@ -5,6 +5,8 @@ via Feature Interaction Detection and Sparse Selection" available at:
 (https://arxiv.org/abs/2209.09326).
 
 
+The legacy repository can be found at the <a href="https://github.com/EnouenJ/sparse-interaction-additive-networks/tree/legacy2022">legacy2022</a> branch.
+
 
 #### Figure 1: SIAN Pipeline
 <img src="figures/SIAN_diagram.PNG" width=100% height=100% style="border:2px solid #000">

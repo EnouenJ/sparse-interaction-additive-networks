@@ -1,5 +1,7 @@
 import numpy as np
 
+#NOTE: depricated right now in favor of "explainer2", still need to make sure there are not lingering bugs because of this
+
 #from Michael Tsang's Archipelago implementation
 #https://arxiv.org/abs/2006.10965
 
@@ -48,6 +50,7 @@ class Explainer:
         scores = {}
         for b in self.verbose_iterable(range(num_batches)):
             batch_sets = set_indices[b*self.batch_size:(b+1)*self.batch_size]
+            # print('batch_sets',batch_sets)
             data_batch = []
             for index_tuple in batch_sets:
                 new_instance = context.copy()
@@ -56,6 +59,7 @@ class Explainer:
 
                 if self.data_xformer is not None:
                     new_instance = self.data_xformer(new_instance)
+                    #print('new_instance',new_instance) #08/29/2024
 
                 data_batch.append(new_instance)
 
@@ -64,8 +68,15 @@ class Explainer:
                     data_batch.append(self.data_xformer(context))
                 else:
                     data_batch.append(context)
+            # print('data_batch',data_batch)
 
-            preds = self.model(np.array(data_batch))
+            #08/29/2024 modification #TODO: fix this hackiness later
+            ###preds = self.model(np.array(data_batch))
+            if type(data_batch[0])==tuple:
+                preds = self.model( (np.array([thing[0] for thing in data_batch]), np.array([thing[1] for thing in data_batch]))  )
+            else:
+                preds = self.model(np.array(data_batch))
+            # print('preds',preds)
             
             for c, index_tuple in enumerate(batch_sets):
                 scores[index_tuple] = preds[c, self.output_indices]    
