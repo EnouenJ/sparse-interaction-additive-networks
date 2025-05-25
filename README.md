@@ -139,4 +139,13 @@ my_SIAN = SIAN(best_interactions)
     year={2022}
 }
 ```
+
+```
+@inproceedings{enouen2025instaSHAP,
+    title={InstaSHAP: Interpretable Additive Models Explain Shapley Values Instantly},
+    author={James Enouen and Yan Liu},
+    booktitle={International Conference on Learning Representations},
+    year={2025}
+}
+```
   
