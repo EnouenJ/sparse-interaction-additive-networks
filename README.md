@@ -18,6 +18,9 @@ Please visit the package at https://github.com/EnouenJ/sian.
 
 [fork my repository](https://github.com/user/repository/fork)
 
+
+# [EnouenJ/sian](https://github.com/EnouenJ/sian)
+
 <a href="https://github.com/EnouenJ/sian">
 <img src="figures/SIAN_diagram.PNG" width=100% height=100% style="border:2px solid #000">
 </a>
