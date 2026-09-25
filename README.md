@@ -6,20 +6,7 @@ via Feature Interaction Detection and Sparse Selection" available at:
 
 Please visit the package at https://github.com/EnouenJ/sian.
 
-<div style="display: flex; justify-content: center; margin-left: auto; margin-right: auto;">
-<a href="https://github.com/EnouenJ/sian">
-<button style="font-size: 1.5rem; padding: 12px 24px;">EnouenJ/sian</button>
-</a>
-</div>
-
-# <kbd>[**Button Text**](https://github.com/EnouenJ/sian)</kbd>
-
-# <kbd>[Button Text](https://github.com/EnouenJ/sian)</kbd>
-
-[fork my repository](https://github.com/user/repository/fork)
-
-
-# [EnouenJ/sian](https://github.com/EnouenJ/sian)
+## [EnouenJ/sian](https://github.com/EnouenJ/sian)
 
 <a href="https://github.com/EnouenJ/sian">
 <img src="figures/SIAN_diagram.PNG" width=100% height=100% style="border:2px solid #000">
