@@ -1,6 +1,6 @@
 # OUTDATED REPOSITORY
 
-Please visit the package at https://github.com/EnouenJ/sian.
+Please visit the new package at https://github.com/EnouenJ/sian.
 
 <a href="https://github.com/EnouenJ/sian">
 <img src="figures/visit_package.PNG" width=100% height=100% style="border:2px solid #000">
