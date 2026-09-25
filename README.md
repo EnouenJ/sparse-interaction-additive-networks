@@ -1,8 +1,4 @@
-# Sparse Interaction Additive Networks (SIAN)
-
-This was the github repository for the Neurips 2022 paper "Sparse Interaction Additive Networks 
-via Feature Interaction Detection and Sparse Selection" available at: 
-(https://arxiv.org/abs/2209.09326).
+# OUTDATED REPOSITORY
 
 Please visit the package at https://github.com/EnouenJ/sian.
 
@@ -10,6 +6,14 @@ Please visit the package at https://github.com/EnouenJ/sian.
 <img src="figures/visit_package.PNG" width=100% height=100% style="border:2px solid #000">
 </a>
 
+
+
+## Sparse Interaction Additive Networks (SIAN)
+
+This was the github repository for the Neurips 2022 paper "Sparse Interaction Additive Networks 
+via Feature Interaction Detection and Sparse Selection" available at: 
+(https://arxiv.org/abs/2209.09326).
+It has since been migrated and integrated into the [sian](https://github.com/EnouenJ/sian) package.
 
 <a href="https://github.com/EnouenJ/sian">
 <img src="figures/SIAN_diagram.PNG" width=100% height=100% style="border:2px solid #000">
